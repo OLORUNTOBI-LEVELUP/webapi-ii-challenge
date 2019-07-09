@@ -23,6 +23,18 @@ app.post('/api/posts', async (req, res) => {
 
 })
 
+app.get('/api/posts', (req, res) => {
+    Posts.find()
+    .then(post => {
+        res.status(200).json(post)
+    })
+    .catch(error => {
+        res.status(500).json({
+            error: "The posts information could not be retrieved." 
+        })
+    })
+})
+
 
 
 
