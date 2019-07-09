@@ -20,7 +20,6 @@ app.post('/api/posts', async (req, res) => {
                 error: "There was an error while saving the post to the database"
             })
     }
-
 })
 
 app.get('/api/posts', (req, res) => {
@@ -40,7 +39,7 @@ app.get('/api/posts/:id', async (req, res) => {
     try {
       const post = await Posts.findById(req.params.id);
   
-      if (post) {
+      if (post.length === 1) {
         res.status(200).json(post);
       } else {
         res.status(404).json({ message: "The post with the specified ID does not exist."});
@@ -51,6 +50,24 @@ app.get('/api/posts/:id', async (req, res) => {
       });
     }
   });
+  app.delete('/api/posts/:id', (req, res) => {
+    const { id } = req.params
+  
+    Posts.remove(id)
+      .then(post => {
+       
+        if (post) {
+          res.status(200).json({ message: 'The post was successfully deleted' })
+        } else {
+          res
+            .status(404)
+            .json({ message: 'The post with the specified ID does not exist.' })
+        }
+      })
+      .catch(() =>
+        res.status(500).json({ error: 'The post could not be removed' })
+      )
+  })
   
 
 
