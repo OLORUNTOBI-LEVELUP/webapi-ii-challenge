@@ -54,6 +54,52 @@ router.get('/:id', async (req, res) => {
       });
     }
   });
+
+  router.get('/:id/comments', (req, res) => {
+    getPost(req.params.id)
+    .then(() => {
+        Posts.findPostComments(req.params.id)
+        .then(data => {
+            res.status(200).json(data);
+        })
+        .catch(error => {
+            res.status(500).json({ error: "The comments information could not be retrieved." });
+        })
+    })
+    .catch(error => {
+        res.status(404).json({ error: "The post with the specified ID does not exist." });
+    })
+})
+
+router.post('/:id/comments', (req, res) => {
+    if(!req.body.text) {
+        res.status(400).json({ error: "Please provide text for the comment." });
+        return;
+    }
+    getPost(req.params.id)
+    .then(() => {
+        const comment = {...req.body, post_id: req.params.id};
+        Posts.insertComment(comment)
+        .then(data => {
+            Posts.findCommentById(data.id)
+            .then(dbComment => {
+                res.status(201).json(dbComment);
+            })
+            .catch(error => {
+                throw new Error("Error adding comment");
+            })
+        })
+        .catch(error => {
+            res.status(500).json({ error: "There was an error while saving the comment to the database" });
+        })
+    })
+    .catch(error => {
+        res.status(404).json({ error: "The post with the specified ID does not exist." });
+    })
+})
+
+
+
   router.delete('/:id', (req, res) => {
     const { id } = req.params
   
